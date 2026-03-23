@@ -1,0 +1,21 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "${DB_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_USER_PWD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_USER}:${DB_USER_PWD}@mongo:27017/${DB_NAME}?authSource=admin
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: ${DB_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${DB_USER_PWD}
