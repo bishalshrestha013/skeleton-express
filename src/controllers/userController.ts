@@ -1,7 +1,7 @@
-import User from "../models/userModel.js";
+import User from "../models/userModel";
 import asyncHandler from "express-async-handler";
-import generateToken from "../utils/generateToken.js";
-import type { ProtectedRequest } from "../../types/app-request.js";
+import generateToken from "../utils/generateToken";
+import type { ProtectedRequest } from "../../types/app-request";
 import type { Request, RequestHandler, Response } from "express";
 
 
