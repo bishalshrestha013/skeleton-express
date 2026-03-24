@@ -2,15 +2,16 @@ import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
 import type { ProtectedRequest } from "../../types/app-request.js";
-import type { Response } from "express";
+import type { Request, RequestHandler, Response } from "express";
 
-const loginUser = asyncHandler(async (req: ProtectedRequest, res: Response) => {
+
+const loginUser:RequestHandler = asyncHandler(async (req: ProtectedRequest, res: Response) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword?.(password))) {
-    generateToken(res, user._id);
+    generateToken(res, user._id.toString());
     res.json({
       _id: user._id,
       name: user.name,
@@ -22,7 +23,7 @@ const loginUser = asyncHandler(async (req: ProtectedRequest, res: Response) => {
   }
 });
 
-const registerUser = asyncHandler(
+const registerUser: RequestHandler = asyncHandler(
   async (req: ProtectedRequest, res: Response) => {
     const { name, email, password } = req.body;
 
@@ -36,7 +37,7 @@ const registerUser = asyncHandler(
     const user = await User.create({ name, email, password });
 
     if (user) {
-      generateToken(res, user._id);
+      generateToken(res, user._id.toString());
       res.status(201);
       res.json({
         _id: user._id,
@@ -128,7 +129,7 @@ const registerUser = asyncHandler(
 //   },
 // );
 
-const logoutUser = asyncHandler(
+const logoutUser: RequestHandler = asyncHandler(
   async (req: ProtectedRequest, res: Response) => {
     res.cookie("jwt", "", {
       httpOnly: true,

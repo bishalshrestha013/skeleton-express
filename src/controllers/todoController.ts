@@ -1,27 +1,28 @@
 import asyncHandler from "express-async-handler";
 import Todo from "../models/todoModel.js";
-import type { Request, Response } from "express";
+import type { Request, RequestHandler, Response } from "express";
 import type { ProtectedRequest } from "../../types/app-request.js";
 
-const createTodo = asyncHandler(
-  async (req: ProtectedRequest, res: Response): Promise<void> => {
+const createTodo: RequestHandler = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { title, description } = req.body;
-    console.log(req.user);
+    const { user } = req as ProtectedRequest;
+    console.log(user);
 
     if (!title || !description) {
       res.status(400);
       throw new Error("Title and Description are required");
     }
 
-    await Todo.create({ user: req.user, title, description });
+    await Todo.create({ user, title, description });
 
     res.status(201).json({ title, description });
   },
 );
 
-const getTodos = asyncHandler(
-  async (req: ProtectedRequest, res: Response): Promise<void> => {
-    const user = req.user;
+const getTodos: RequestHandler = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const { user } = req as ProtectedRequest;
     const todos = await Todo.find({
       user: user,
     });
@@ -29,11 +30,11 @@ const getTodos = asyncHandler(
   },
 );
 
-const editTodo = asyncHandler(
-  async (req: ProtectedRequest, res: Response): Promise<void> => {
+const editTodo: RequestHandler = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { title, description, status } = req.body;
 
-    const user = req.user;
+    const { user } = req as ProtectedRequest;
 
     if (!title || !description || !status) {
       res.status(400);
@@ -64,8 +65,8 @@ const editTodo = asyncHandler(
   },
 );
 
-const deleteTodo = asyncHandler(
-  async (req: ProtectedRequest, res: Response): Promise<void> => {
+const deleteTodo: RequestHandler = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const todo = await Todo.findById(req.params.id);
 
     if (todo) {
