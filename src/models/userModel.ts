@@ -1,7 +1,21 @@
-import mongoose, { Schema } from "mongoose"
-import bcrypt from "bcryptjs"
+import mongoose, { Model, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
-const userSchema = new Schema(
+export interface UserDoc extends mongoose.Document {
+  name?: string;
+  email?: string;
+  password?: string;
+  matchPassword?: (enteredPassword: string) => Promise<boolean>;
+}
+
+export interface UserModel extends mongoose.Model<UserDoc> {
+  matchPassword?: (enteredPassword: string) => Promise<boolean>;
+}
+
+export const DOCUMENT_NAME = "User";
+export const COLLECTION_NAME = "users";
+
+const userSchema = new Schema<UserDoc>(
   {
     name: {
       type: String,
@@ -19,22 +33,26 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
-  }
-)
+  },
+);
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password)
-}
+userSchema.methods.matchPassword = async function (enteredPassword: string) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
-    next()
+    next();
   }
 
-  const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
-})
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
-const User = mongoose.model("User", userSchema)
+const User: Model<UserDoc> = mongoose.model<UserDoc, UserModel>(
+  DOCUMENT_NAME,
+  userSchema,
+  COLLECTION_NAME,
+);
 
-export default User
+export default User;

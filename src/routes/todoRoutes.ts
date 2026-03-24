@@ -6,7 +6,7 @@ import {
   deleteTodo,
 } from "../controllers/todoController.js"
 import { protect } from "../middleware/authMiddleware.js"
-const router = express.Router()
+const router: express.Router = express.Router()
 
 router.route("/").post(protect, createTodo).get(protect, getTodos)
 router.route("/:id").put(protect, editTodo).delete(protect, deleteTodo)
